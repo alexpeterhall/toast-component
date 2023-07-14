@@ -1,16 +1,45 @@
 import React from 'react'
-
 import Button from '../Button'
-import Toast from '../Toast/Toast'
-
 import styles from './ToastPlayground.module.css'
+import ToastShelf from '../ToastShelf/ToastShelf'
 
 const VARIANT_OPTIONS = ['notice', 'warning', 'success', 'error']
 
 function ToastPlayground() {
+  const [toasts, setToasts] = React.useState([
+    {
+      id: crypto.randomUUID(),
+      message: 'Oh Snap!',
+      variant: 'error',
+    },
+    {
+      id: crypto.randomUUID(),
+      message: 'Success!',
+      variant: 'success',
+    },
+  ])
   const [message, setMessage] = React.useState('')
-  const [variant, setVariant] = React.useState()
-  const [showToast, setShowToast] = React.useState(false)
+  const [variant, setVariant] = React.useState(VARIANT_OPTIONS[0])
+
+  function handleCreateToast(event) {
+    event.preventDefault()
+    const newToasts = [
+      ...toasts,
+      {
+        id: crypto.randomUUID(),
+        message,
+        variant,
+      },
+    ]
+    setToasts(newToasts)
+    setMessage('')
+    setVariant(VARIANT_OPTIONS[0])
+  }
+
+  function handleDismiss(id) {
+    const newToasts = toasts.filter((toast) => toast.id !== id)
+    setToasts(newToasts)
+  }
 
   return (
     <div className={styles.wrapper}>
@@ -19,9 +48,9 @@ function ToastPlayground() {
         <h1>Toast Playground</h1>
       </header>
 
-      {showToast && <Toast variant={variant} message={message} dismissToast={() => setShowToast(false)}></Toast>}
+      <ToastShelf toasts={toasts} dismissToast={handleDismiss} />
 
-      <div className={styles.controlsWrapper}>
+      <form className={styles.controlsWrapper} onSubmit={handleCreateToast}>
         <div className={styles.row}>
           <label htmlFor='message' className={styles.label} style={{ alignSelf: 'baseline' }}>
             Message
@@ -64,15 +93,10 @@ function ToastPlayground() {
         <div className={styles.row}>
           <div className={styles.label} />
           <div className={`${styles.inputWrapper} ${styles.radioWrapper}`}>
-            <Button
-              onClick={(e) => {
-                setShowToast(true)
-              }}>
-              Pop Toast!
-            </Button>
+            <Button>Pop Toast!</Button>
           </div>
         </div>
-      </div>
+      </form>
     </div>
   )
 }
